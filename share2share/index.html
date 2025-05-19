@@ -1,13 +1,22 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <!-- todo  -->
     <!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite App</title>
+    <title>Modern File Explorer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./src/style.css">
   </head>
   <body>
-    <script type="module" src="/src/main.js"></script>
+    <div id="global-drop-zone" class="drop-zone">
+      <h3>drop files or folders to share</h3>
+      <span class="icon">+</span>
+    </div>
+    <div class="file-explorer">
+      <div class="items-list"></div>
+    </div>
+    <script src="./src/main.js" type="module"></script>
   </body>
 </html>
