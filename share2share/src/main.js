@@ -2,7 +2,11 @@ import './style.css';
 
 import { FileExplorer } from './fileexplorer.js';
 import { createOffer, createAnswer } from './webrtc.js';
-import { createTheShareLinkScreen, createTheDownloadScreen } from './screens.js';
+import { showDragAndDropWithFileExplorerScreen, showShareLinkScreen, showDownloadScreen } from './screens.js';
+
+
+showDragAndDropWithFileExplorerScreen();
+
 
 globalThis.fileExplorer = new FileExplorer();
 
@@ -16,7 +20,7 @@ document.getElementById('start-sharing-button').addEventListener('click', () => 
   const shareUrl = `${window.location.origin}/share/${shareId}`;
   history.pushState(null, '', shareUrl);
 
-  createTheShareLinkScreen(shareId);
+  showShareLinkScreen(shareId);
 
   createOffer(fileExplorer.items);
 });
@@ -32,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.location.pathname.startsWith('/share/')) {
     const shareId = window.location.pathname.split('/').pop();
 
-    createTheDownloadScreen();
+    showDownloadScreen();
 
     console.log("Ready to connect");
     createAnswer();

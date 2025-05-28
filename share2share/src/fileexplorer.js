@@ -1,3 +1,5 @@
+import { renderFileExplorerItems, animateItemEnter } from './screens.js';
+
 export class FileExplorer {
   constructor() {
     this.items = [];
@@ -8,7 +10,6 @@ export class FileExplorer {
 
   setupEventListeners() {
     const globalDropZone = document.getElementById('global-drop-zone');
-    const fileExplorer = document.querySelector('.file-explorer');
     let dragCounter = 0;
 
     // Show drop zone when dragging files anywhere
@@ -51,14 +52,9 @@ export class FileExplorer {
         }
         this.hasDropped = true;
         globalDropZone.classList.remove('initial');
-        fileExplorer.classList.remove('hidden');
         this.updateView();
       }
     });
-
-    // Initial state: show drop zone, hide file viewer
-    globalDropZone.classList.add('initial');
-    fileExplorer.classList.add('hidden');
   }
 
   // Recursively traverse dropped folders (webkitGetAsEntry API)
@@ -136,14 +132,7 @@ export class FileExplorer {
   addItem(item, parentItems = this.items) {
     parentItems.push(item);
     this.updateView();
-    // Add animation class
-    setTimeout(() => {
-      const newItem = document.querySelector(`[data-name="${item.name}"]`);
-      if (newItem) {
-        newItem.classList.add('item-enter');
-        setTimeout(() => newItem.classList.remove('item-enter'), 300);
-      }
-    }, 10);
+    animateItemEnter(item.name);
   }
 
   deleteItem(itemName, parentItems = this.items) {
@@ -182,31 +171,6 @@ export class FileExplorer {
   }
 
   updateView() {
-    const itemsList = document.querySelector('.items-list');
-    // Always show items list
-    itemsList.style.display = 'flex';
-    itemsList.innerHTML = this.renderItems(this.items);
-  }
-
-  renderItems(items, level = 0, parent = null) {
-    return items.map(item => {
-      const isFolder = item.type === 'folder';
-      const isOpen = item.isOpen;
-      const indent = level * 20;
-      return `
-        <div class="item ${isFolder ? 'is-folder' : 'is-file'}" 
-             style="margin-left: ${indent}px"
-             data-name="${item.name}">
-          <span class="icon" onclick="fileExplorer.toggleFolder('${item.name}')">${isFolder ? (isOpen ? '📂' : '📁') : '📄'}</span>
-          <span class="name">${item.name}</span>
-          <button class="delete-btn" onclick="fileExplorer.deleteItem('${item.name}')">🗑️</button>
-        </div>
-        ${isFolder && isOpen ? `
-          <div class="folder-content">
-            ${this.renderItems(item.items || [], level + 1, item)}
-          </div>
-        ` : ''}
-      `;
-    }).join('');
+    renderFileExplorerItems(this.items);
   }
 }
