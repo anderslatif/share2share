@@ -17,6 +17,8 @@ const firestore = firebase.firestore();
 // Global state
 let peerConnection;
 let dataChannel;
+let isOfferCandiate;
+let shareId;
 
 const servers = {
   iceServers: [
@@ -28,11 +30,13 @@ const servers = {
 };
 
 export async function startCall() {
-    // const shareId = window.location.pathname.split('/').pop();
-    const shareId = "shareId"; // todo For testing, use a hardcoded ID
+    // shareId = window.location.pathname.split('/').pop();
+    shareId = "shareId"; // todo For testing, use a hardcoded ID
+
+    isOfferCandiate = true;
 
     // Firestore
-    const callDocument = firestore.collection('calls').doc(shareId);
+    const callDocument = firestore.collection('shares').doc(shareId);
     const offerCandidates = callDocument.collection('offerCandidates');
     const answerCandidates = callDocument.collection('answerCandidates');
 
@@ -74,9 +78,20 @@ export async function answerCall() {
 	// const shareId = window.location.pathname.split('/').pop();
     const shareId = "shareId"; // todo For testing, use a hardcoded ID
 
-	const callDocument = firestore.collection("calls").doc(shareId);
+	const callDocument = firestore.collection("shares").doc(shareId);
 	const offerCandidates = callDocument.collection("offerCandidates");
 	const answerCandidates = callDocument.collection("answerCandidates");
+
+	const callSnapshot = await callDocument.get();
+	const data = callSnapshot.data();
+	if (!callSnapshot.exists || !data?.offer) {
+		console.error("No offer found.");
+		return;
+	}
+	if (data.status === "closed") {
+        alert("The sender has already left the session.");
+        return;
+	}
 
 	peerConnection = new RTCPeerConnection(servers);
 
@@ -91,12 +106,6 @@ export async function answerCall() {
 	  };
 	};
 
-	const callSnapshot = await callDocument.get();
-	if (!callSnapshot.exists || !callSnapshot.data()?.offer) {
-		console.error("No offer found.");
-		return;
-	}
-
 	await peerConnection.setRemoteDescription(new RTCSessionDescription(callSnapshot.data().offer));
 
 	const answerDescription = await peerConnection.createAnswer();
@@ -110,8 +119,21 @@ export async function answerCall() {
 			}
 		});
 	});
+
+	callDocument.onSnapshot((snapshot) => {
+	  const updated = snapshot.data();
+	  if (updated?.status === "closed") {
+	    alert("The sender has just left the session.");
+	    dataChannel?.close();
+	    peerConnection?.close();
+	  }
+	});
 }
 
-export function getDataChannel() {
-  return dataChannel;
-}
+// Handle if the offer candidate peer leaves
+window.addEventListener("beforeunload", () => {
+	if (isOfferCandiate && dataChannel) {
+		dataChannel.close();
+		firestore.collection('shares').doc(shareId).update({ status: 'closed' });
+	}
+});
