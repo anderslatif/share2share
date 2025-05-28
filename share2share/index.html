@@ -2,8 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- todo  -->
-    <!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
+    <!-- todo just to supress favicon errors until I create a logo -->
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij4KICA8Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iI2ZnZyIgLz4KPC9zdmc+Cg==" type="image/svg+xml">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Share2Share</title>
 
@@ -27,6 +27,10 @@
       <input type="text" id="share-link" readonly />
       <button id="copy-link-button">Copy Link</button>
     </div>
+
+    <div id="ready-to-download" style="display: none;">
+      <h1>Files are ready to download!</h1>
+      <button id="copy-download-button">Download</button>
 
     <script src="./src/main.js" type="module"></script>
   </body>

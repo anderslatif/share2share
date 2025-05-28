@@ -14,16 +14,12 @@ const firebaseConfig = {
 const app = firebase.initializeApp(firebaseConfig);
 const firestore = firebase.firestore();
 
-
-
-
 // Global state
 let peerConnection;
 let dataChannel;
 
 const servers = {
   iceServers: [
-    { urls: ['stun:stun.l.google.com:19302'] },
     { urls: ['stun:stun1.l.google.com:19302'] },
     { urls: ['stun:stun2.l.google.com:19302'] },
     { urls: ['stun:stun3.l.google.com:19302'] },
@@ -32,7 +28,8 @@ const servers = {
 };
 
 export async function startCall() {
-    const shareId = window.location.pathname.split('/').pop();
+    // const shareId = window.location.pathname.split('/').pop();
+    const shareId = "shareId"; // todo For testing, use a hardcoded ID
 
     // Firestore
     const callDocument = firestore.collection('calls').doc(shareId);
@@ -74,7 +71,9 @@ answerCandidates.onSnapshot((snapshot) => {
 
 
 export async function answerCall() {
-	const shareId = window.location.pathname.split('/').pop();
+	// const shareId = window.location.pathname.split('/').pop();
+    const shareId = "shareId"; // todo For testing, use a hardcoded ID
+
 	const callDocument = firestore.collection("calls").doc(shareId);
 	const offerCandidates = callDocument.collection("offerCandidates");
 	const answerCandidates = callDocument.collection("answerCandidates");
@@ -87,8 +86,8 @@ export async function answerCall() {
 
 	peerConnection.ondatachannel = (event) => {
 	  dataChannel = event.channel;
-	  dataChannel.onmessage = (e) => {
-	    console.log("Received:", e.data);
+	  dataChannel.onmessage = (event) => {
+	    console.log("Received:", event.data);
 	  };
 	};
 

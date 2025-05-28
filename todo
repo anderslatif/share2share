@@ -10,8 +10,10 @@ Convert .file-explorer => #file-explorer
 # Near Future
 
 Create logic that closes the Firebase connection and the peer connection to avoid memory leaks and problems with reconnecting. 
-
-
+If the peer tries to leave without having shared anything, then perhaps give a warning
+Fix Firebase rules
+Show the files that will be downloaded in the download screen, including their size. This requires the first message sent to be the file list.
+Consider allowing downloading individual files as well as all.
 
 ################################################################
 # Future
