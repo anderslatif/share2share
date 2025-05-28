@@ -16,8 +16,14 @@ Fix Firebase rules
 Show the files that will be downloaded in the download screen, including their size. This requires the first message sent to be the file list.
 Consider allowing downloading individual files as well as all.
 
+1. Create a cute animation while connecting to peer for the answer candidate. 
+2. Inform the offer candidate of connection and what files are being downloaded.
+
+
 ################################################################
 # Future
+
+
 
 Delete documents in Firestore after a week or month.
 Allow for continuous upload even after sharing.
