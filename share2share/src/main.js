@@ -1,7 +1,7 @@
 import './style.css';
 
 import { FileExplorer } from './fileexplorer.js';
-import { startCall, answerCall } from './webrtc.js';
+import { createOffer, createAnswer } from './webrtc.js';
 import { createTheShareLinkScreen, createTheDownloadScreen } from './screens.js';
 
 globalThis.fileExplorer = new FileExplorer();
@@ -17,14 +17,15 @@ document.getElementById('start-sharing-button').addEventListener('click', () => 
   history.pushState(null, '', shareUrl);
 
   createTheShareLinkScreen(shareId);
- 
+
+  createOffer(fileExplorer.items);
 });
 
 document.addEventListener('DOMContentLoaded', () => {
   // todo for testing I will create the peer connection immediately for this path 
   if (window.location.pathname.startsWith('/share0')) {
     console.log("Ready to share");
-    startCall();
+    createOffer();
   }
 
   // This is the other peer that is being shared with
@@ -34,6 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
     createTheDownloadScreen();
 
     console.log("Ready to connect");
-    answerCall();
+    createAnswer();
   }
 });

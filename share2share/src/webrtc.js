@@ -1,3 +1,7 @@
+import { offerCandidateSendsFileList, offerCandidateSendsFile, 
+    answerCandidateRequestsAllFiles, answerCandidateRequestsAFile,
+    offerCandidateReceivedMessage } from "./fileTransfer.js";
+
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
 
@@ -29,7 +33,7 @@ const servers = {
   ]
 };
 
-export async function startCall() {
+export async function createOffer(fileItems) {    
     // shareId = window.location.pathname.split('/').pop();
     shareId = "shareId"; // todo For testing, use a hardcoded ID
 
@@ -45,7 +49,11 @@ export async function startCall() {
 
     dataChannel = peerConnection.createDataChannel("files");
     dataChannel.onopen = () => {
-      dataChannel.send("hello");
+        dataChannel.send("Connection established");
+        offerCandidateSendsFileList(fileItems);
+    };
+    dataChannel.onmessage = (event) => {
+        offerCandidateSendsFile(JSON.parse(event.data), fileItems);
     };
 
     const offerDescription = await peerConnection.createOffer();
@@ -74,7 +82,7 @@ answerCandidates.onSnapshot((snapshot) => {
 }
 
 
-export async function answerCall() {
+export async function createAnswer() {
 	// const shareId = window.location.pathname.split('/').pop();
     const shareId = "shareId"; // todo For testing, use a hardcoded ID
 
@@ -128,6 +136,10 @@ export async function answerCall() {
 	    peerConnection?.close();
 	  }
 	});
+}
+
+export function getDataChannel() {
+    return dataChannel;
 }
 
 // Handle if the offer candidate peer leaves

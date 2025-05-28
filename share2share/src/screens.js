@@ -1,3 +1,5 @@
+import { answerCandidateRequestsAllFiles } from "./fileTransfer.js";
+
 // #######################################################
 // Drag and Drop Screens
 // #######################################################
@@ -26,6 +28,9 @@ export function createTheDownloadScreen() {
   fileExplorer.style.display = 'none';
 
   document.getElementById('ready-to-download').style.display = 'block';
+
+  const downloadAllFilesButton = document.getElementById('download-all-files');
+  downloadAllFilesButton.addEventListener('click', answerCandidateRequestsAllFiles);
 
 }
 
