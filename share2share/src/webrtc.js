@@ -1,6 +1,7 @@
 import { offerCandidateSendsFileList, 
     answerCandidateRequestsAllFiles, answerCandidateRequestsAFile,
     offerCandidateReceivedMessage, answerCandidateReceivedMessage } from "./fileTransfer.js";
+import { showDownladReadyScreen } from "./screens.js";
 
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
@@ -34,8 +35,7 @@ const servers = {
 };
 
 export async function createOffer(fileItems) {    
-    // shareId = window.location.pathname.split('/').pop();
-    shareId = "shareId"; // todo For testing, use a hardcoded ID
+    shareId = window.location.pathname.split('/').pop();
 
     isOfferCandiate = true;
 
@@ -83,8 +83,7 @@ answerCandidates.onSnapshot((snapshot) => {
 
 
 export async function createAnswer() {
-	// const shareId = window.location.pathname.split('/').pop();
-    const shareId = "shareId"; // todo For testing, use a hardcoded ID
+	const shareId = window.location.pathname.split('/').pop();
 
 	const callDocument = firestore.collection("shares").doc(shareId);
 	const offerCandidates = callDocument.collection("offerCandidates");
@@ -108,6 +107,8 @@ export async function createAnswer() {
 	};
 
 	peerConnection.ondatachannel = (event) => {
+    showDownladReadyScreen();
+
 	  dataChannel = event.channel;
 	  dataChannel.onmessage = (event) => {
 	    answerCandidateReceivedMessage(event);

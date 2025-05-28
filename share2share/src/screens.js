@@ -1,4 +1,5 @@
 import { answerCandidateRequestsAllFiles } from "./fileTransfer.js";
+import { createShareLink } from "./util.js";
 
 // #######################################################
 // Drag and Drop + File Explorer Screens
@@ -15,7 +16,10 @@ export function showDragAndDropWithFileExplorerScreen() {
     		<button id="start-sharing-button">Start Sharing</button>
     	</div>
     `;
+
+    document.getElementById('start-sharing-button').addEventListener('click', createShareLink);
 }
+
 
 
 export function renderFileExplorerItems(items, level = 0, parent = null) {
@@ -74,29 +78,76 @@ export function animateItemExit(name, callback) {
 
 export function showShareLinkScreen(shareId) {
 	document.getElementById("screen-wrapper").innerHTML = `
-		<div id="ready-to-share">
-			<h1>You are ready to share your files!</h1>
-			<h2>Share Link</h2>
-			<input type="text" id="share-link" readonly value="${window.location.origin}/share/${shareId}" />
-			<button id="copy-link-button">Copy Link</button>
+		<div id="ready-to-share" class="centered-container">
+			<h1 class="share-title">You're ready to share!</h1>
+			<h3>Send this link to the person you want to share with.</h3>
+			<div class="share-link-container">
+				<input type="text" id="share-link" readonly value="${window.location.origin}/share/${shareId}" />
+				<button id="copy-link-button" title="Copy to clipboard">📋</button>
+				<span id="copy-feedback" class="copy-feedback">Copied!</span>
+			</div>
 		</div>
 	`;
+
+	const input = document.getElementById("share-link");
+	const feedback = document.getElementById("copy-feedback");
+	const copyButton = document.getElementById("copy-link-button");
+
+	if (copyButton && input && feedback) {
+		copyButton.addEventListener("click", async () => {
+			try {
+				await navigator.clipboard.writeText(input.value);
+				feedback.classList.add("show");
+				setTimeout(() => feedback.classList.remove("show"), 1500);
+			} catch (err) {
+				console.error("Failed to copy: ", err);
+			}
+		});
+	}
 }
 
-export function showDownloadScreen() {
+// #######################################################
+// Download Screens
+// #######################################################
+
+
+export function showDownloadConnectingScreen() {
 	document.getElementById("screen-wrapper").innerHTML = `
-		<div id="global-drop-zone" class="drop-zone">
-			<h3>drop files or folders to share</h3>
-			<span class="icon">+</span>
-		</div>
 		<div id="ready-to-download">
-			<h1>Files are ready to download!</h1>
-			<button id="download-all-files">Download All Files</button>
+			<h1 id="answer-candidate-message">Trying to connect...</h1>
 		</div>
 	`;
-
-  document.getElementById('download-all-files').addEventListener('click', answerCandidateRequestsAllFiles);
 }
+
+export function showDownladReadyScreen() {
+  document.getElementById("screen-wrapper").innerHTML = `
+    <div id="download-file-list">
+      <h1>Ready to download!</h1>
+      <button id="start-download-button">Start Download</button>
+    </div>
+  `;
+}
+
+export function showDownloadWithFileListScreen(files) {
+  const fileListHtml = files.map(file => `
+    <div class="file-item">
+      <span class="file-name">${file.name}</span>
+      <span class="file-size">${(file.size / 1024).toFixed(2)} KB</span>
+    </div>
+  `).join('');
+
+  document.getElementById("screen-wrapper").innerHTML = `
+    <div id="download-file-list">
+      <h1>Files to Download</h1>
+      <div class="file-list">${fileListHtml}</div>
+      <button id="start-download-button">Start Download</button>
+    </div>
+  `;
+
+  
+  document.getElementById('start-download-button').addEventListener('click', answerCandidateRequestsAllFiles);
+}
+
 
 // #######################################################
 // WebRTC Screens

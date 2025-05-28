@@ -1,4 +1,5 @@
 import { getDataChannel } from "./webrtc.js";
+import { showDownloadWithFileListScreen } from "./screens.js";
 
 // #######################################################
 // Messaging
@@ -105,6 +106,7 @@ export function answerCandidateReceivedMessage(event) {
     console.log("Received message from offer candidate:", data);
 
     if (data.eventName === 'offerFileList') {
+        showDownloadWithFileListScreen(data.payload);
         console.log("Received file list:", data.payload);
     } else if (data.eventName === 'fileMeta') {
         console.log("Received file metadata:", data.payload);

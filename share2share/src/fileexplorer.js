@@ -27,10 +27,9 @@ export class FileExplorer {
       }
     });
     document.addEventListener('dragleave', (event) => {
-      dragCounter--;
-      if (dragCounter <= 0) {
+      dragCounter = Math.max(0, dragCounter - 1);
+      if (dragCounter === 0) {
         globalDropZone.classList.remove('active');
-        dragCounter = 0;
       }
     });
     document.addEventListener('drop', async (event) => {
@@ -68,12 +67,14 @@ export class FileExplorer {
         });
       });
     } else if (item.isDirectory) {
+      const currentPath = path + item.name + '/';
+
       const dirReader = item.createReader();
       const readEntries = async () => {
         return new Promise((resolve) => {
           dirReader.readEntries(async (entries) => {
             for (const entry of entries) {
-              await this.traverseFileTree(entry, path + item.name + '/');
+              await this.traverseFileTree(entry, currentPath);
             }
             resolve();
           });
@@ -108,21 +109,23 @@ export class FileExplorer {
       let existing = current.find(item => item.name === part);
       if (!existing) {
         if (isFile) {
-          existing = {
+          const fileItem = {
             name: part,
             type: 'file',
             size: file.size,
             lastModified: file.lastModified,
             blob: file
           };
+          this.addItem(fileItem, current);
+          return;
         } else {
           existing = {
             name: part,
             type: 'folder',
             items: []
           };
+          current.push(existing);
         }
-        current.push(existing);
       }
       if (!isFile) {
         current = existing.items;
@@ -131,6 +134,7 @@ export class FileExplorer {
   }
 
   addItem(item, parentItems = this.items) {
+    if (parentItems.some(existing => existing.name === item.name)) return;
     parentItems.push(item);
     this.updateView();
     animateItemEnter(item.name);
@@ -143,14 +147,14 @@ export class FileExplorer {
         parentItems.splice(index, 1);
         this.updateView();
       });
-    } else {
-      // Recursively search in folders
-      for (const item of parentItems) {
-        if (item.type === 'folder') {
-          this.deleteItem(itemName, item.items);
-        }
+      return true;
+    }
+    for (const item of parentItems) {
+      if (item.type === 'folder') {
+        if (this.deleteItem(itemName, item.items)) return true;
       }
     }
+    return false;
   }
 
   toggleFolder(itemName, parentItems = this.items) {
@@ -158,13 +162,14 @@ export class FileExplorer {
     if (folder) {
       folder.isOpen = !folder.isOpen;
       this.updateView();
-    } else {
-      for (const item of parentItems) {
-        if (item.type === 'folder') {
-          this.toggleFolder(itemName, item.items);
-        }
+      return true;
+    }
+    for (const item of parentItems) {
+      if (item.type === 'folder') {
+        if (this.toggleFolder(itemName, item.items)) return true;
       }
     }
+    return false;
   }
 
   updateView() {

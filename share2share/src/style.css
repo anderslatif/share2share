@@ -1,3 +1,8 @@
+/* ********************************************************** */
+/* Drag and Drop Screen */
+/* ********************************************************** */
+
+
 #global-drop-zone {
   position: fixed;
   left: 50%;
@@ -53,6 +58,47 @@
   text-shadow: 0 2px 8px #2563eb22;
 }
 
+#ready-to-share {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10vh;
+  padding: 2rem;
+  text-align: center;
+}
+
+.share-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #22c55e;
+  margin-bottom: 2rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.share-link-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f0fdf4;
+  border: 2px solid #22c55e;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  max-width: 80vw;
+  box-shadow: 0 4px 16px rgba(34, 197, 94, 0.2);
+  overflow: visible;
+}
+
+#start-sharing-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(34, 197, 94, 0.5);
+}
+
+/* ********************************************************** */
+/* File Explorer Screen */
+/* ********************************************************** */
+
 #file-explorer {
   background: #fff;
   border-radius: 24px;
@@ -65,12 +111,6 @@
   flex-direction: column;
   opacity: 1;
   transition: opacity 0.3s;
-}
-
-.file-explorer.hidden {
-  opacity: 0;
-  pointer-events: none;
-  height: 0;
 }
 
 .items-list {
@@ -115,3 +155,66 @@
   background: #fee2e2;
   color: #b91c1c;
 }
+
+#start-sharing-button {
+  height: 10vh;
+  background-color: #22c55e;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+/* ********************************************************** */
+/* Start Sharing Screen */
+/* ********************************************************** */
+
+#share-link {
+  border: none;
+  background: transparent;
+  color: #065f46;
+  font-size: 1.1rem;
+  font-weight: 600;
+  outline: none;
+  width: 60vw;
+  white-space: nowrap;
+  overflow-x: auto;
+  text-align: center;
+}
+
+#copy-link-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #22c55e;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+#copy-link-button:hover {
+  transform: scale(1.1);
+}
+
+.copy-feedback {
+	position: absolute;
+	right: 0;
+	top: -2rem;
+	background: #22c55e;
+	color: white;
+	padding: 0.2rem 0.6rem;
+	border-radius: 6px;
+	font-size: 0.9rem;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.3s ease;
+}
+
+.copy-feedback.show {
+	opacity: 1;
+}
+
+
