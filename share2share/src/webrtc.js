@@ -1,6 +1,6 @@
-import { offerCandidateSendsFileList, offerCandidateSendsFile, 
+import { offerCandidateSendsFileList, 
     answerCandidateRequestsAllFiles, answerCandidateRequestsAFile,
-    offerCandidateReceivedMessage } from "./fileTransfer.js";
+    offerCandidateReceivedMessage, answerCandidateReceivedMessage } from "./fileTransfer.js";
 
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
@@ -49,11 +49,11 @@ export async function createOffer(fileItems) {
 
     dataChannel = peerConnection.createDataChannel("files");
     dataChannel.onopen = () => {
-        dataChannel.send("Connection established");
+        dataChannel.send(JSON.stringify({ eventName: "Connection established" }));
         offerCandidateSendsFileList(fileItems);
     };
     dataChannel.onmessage = (event) => {
-        offerCandidateSendsFile(JSON.parse(event.data), fileItems);
+        offerCandidateReceivedMessage(event, fileItems);
     };
 
     const offerDescription = await peerConnection.createOffer();
@@ -110,7 +110,7 @@ export async function createAnswer() {
 	peerConnection.ondatachannel = (event) => {
 	  dataChannel = event.channel;
 	  dataChannel.onmessage = (event) => {
-	    console.log("Received:", event.data);
+	    answerCandidateReceivedMessage(event);
 	  };
 	};
 

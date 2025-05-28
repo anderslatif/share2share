@@ -60,7 +60,7 @@ export function answerCandidateRequestsAllFiles() {
     const dataChannel = getDataChannel();
 
     const data = JSON.stringify({
-        eventName: 'answerRequestAllFiles',
+        eventName: 'answerRequestsAllFiles',
     });
 
     dataChannel.send(data);
@@ -88,7 +88,6 @@ export function offerCandidateReceivedMessage(event, fileItems) {
 
     if (data.eventName === 'answerRequestAllFiles', fileItems) {
         fileItems.forEach((fileItem) => {
-            console.log("Sending file item:", fileItem);
             offerCandidateSendsFile(fileItem);
         });
     } else if (data.eventName === 'answerRequestAFile') {
