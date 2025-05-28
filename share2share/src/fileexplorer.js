@@ -1,6 +1,4 @@
 import { renderFileExplorerItems, animateItemEnter, animateItemExit } from './screens.js';
-import { downloadFileLocally } from './util.js';
-import { zipFolder } from './zipUtil.js';
 
 export class BaseFileExplorer {
 	constructor(items = []) {

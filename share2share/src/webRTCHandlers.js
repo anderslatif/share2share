@@ -90,7 +90,7 @@ export function answerCandidateRequestsAFile(fileName) {
     const dataChannel = getDataChannel();
 
     const data = JSON.stringify({
-        eventName: 'answerRequestAFile',
+        eventName: 'answerRequestsAFile',
         payload: { name: fileName }
     });
 
@@ -106,14 +106,19 @@ export function offerCandidateReceivedMessage(event, fileItems) {
     const data = JSON.parse(event.data);
     console.log("Received message from offer candidate:", data);
 
-    if (data.eventName === 'answerRequestAllFiles', fileItems) {
+    if (data.eventName === 'answerRequestsAllFiles' && Array.isArray(fileItems)) {
         fileItems.forEach((fileItem) => {
             offerCandidateSendsFile(fileItem);
         });
-    } else if (data.eventName === 'answerRequestAFile') {
-        // Handle a single file received from the offer candidate
-        console.log("Received file item:", data.payload);
-        // Process the file item as needed
+    } else if (data.eventName === 'answerRequestsAFile') {
+        const requestedName = data.payload.name;
+        console.log("Received file request for:", requestedName);
+        const fileItem = fileItems.find(item => item.name === requestedName);
+        if (fileItem) {
+            offerCandidateSendsFile(fileItem);
+        } else {
+            console.warn("Requested file not found:", requestedName);
+        }
     }
 }
 
@@ -136,14 +141,20 @@ export function answerCandidateReceivedMessage(event) {
         };
         receivedChunks = [];
     } else if (data.eventName === 'fileChunk') {
+        if (!incomingFile) {
+            console.warn("fileChunk received without fileMeta");
+            return;
+        }
         const chunk = Uint8Array.from(data.payload.data);
         receivedChunks.push(chunk);
     } else if (data.eventName === 'fileEnd') {
+        if (!incomingFile) {
+            console.warn("fileEnd received without fileMeta");
+            return;
+        }
         const blob = new Blob(receivedChunks, { type: incomingFile.type });
         downloadFileLocally(blob, incomingFile.name);
-
         console.log("Downloaded file:", incomingFile.name);
-
         incomingFile = null;
         receivedChunks = [];
     }

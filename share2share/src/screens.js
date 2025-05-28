@@ -56,46 +56,28 @@ export function renderFileExplorerItems(items, level = 0, parentPath = '', isDow
 		`;
 	}).join('');
 
-	if (level === 0) {
-		const container = document.querySelector('#file-explorer .items-list');
-		if (container) {
-			container.innerHTML = html;
+	const container = document.querySelector('#file-explorer .items-list');
+	if (container) {
+		container.innerHTML = html;
 
-			if (isDownloadMode) {
-				const buttons = container.querySelectorAll('.download-btn');
-				buttons.forEach(btn => {
-					btn.addEventListener('click', (e) => {
-						e.stopPropagation();
-						const path = btn.dataset.path;
-						if (path) {
-							answerCandidateRequestsAFile(path);
-						}
-					});
-				});
-			}
-
-			// Remove previous handler
-			if (explorerClickHandler) {
-				container.removeEventListener('click', explorerClickHandler);
-			}
-
-			// Add new handler
+		// Only add the handler once
+		if (!explorerClickHandler) {
 			explorerClickHandler = (e) => {
 				const itemEl = e.target.closest('.item');
 				if (!itemEl) return;
 				const name = itemEl.dataset.name;
 
 				if (e.target.closest('.icon')) {
-					if (window.fileExplorer?.toggleFolder) {
-						window.fileExplorer.toggleFolder(name);
-					}
+					window.fileExplorer?.toggleFolder?.(name);
+					renderFileExplorerItems(window.fileExplorer.items, 0, '', true);
 				} else if (e.target.classList.contains('delete-btn')) {
-					if (window.fileExplorer?.deleteItem) {
-						window.fileExplorer.deleteItem(name);
-					}
+					window.fileExplorer?.deleteItem?.(name);
 				} else if (e.target.classList.contains('download-btn')) {
-					if (window.fileExplorer?.downloadItem) {
-						window.fileExplorer.downloadItem(name);
+					e.stopPropagation();
+					const path = e.target.dataset.path;
+					console.log("Download button clicked. Path:", path);
+					if (path) {
+						answerCandidateRequestsAFile(path);
 					}
 				}
 			};
