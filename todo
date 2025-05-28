@@ -1,0 +1,20 @@
+################################################################
+# Soon
+
+Unify the way I show and hide the different screens.
+Convert .file-explorer => #file-explorer
+
+
+
+################################################################
+# Near Future
+
+Create logic that closes the Firebase connection and the peer connection to avoid memory leaks and problems with reconnecting. 
+
+
+
+################################################################
+# Future
+
+Delete documents in Firestore after a week or month.
+Allow for continuous upload even after sharing.
