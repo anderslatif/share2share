@@ -1,11 +1,14 @@
 ################################################################
 # Soon
 
+Have a look at util.js
+
 Unify the way I show and hide the different screens.
 Convert .file-explorer => #file-explorer
 
 Handle downloading nested files in directories.
 
+Create a markdown table in README for the different event types.
 
 ################################################################
 # Near Future

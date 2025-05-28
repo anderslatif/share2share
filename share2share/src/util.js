@@ -1,4 +1,4 @@
-import { createOffer } from "./webrtc.js";
+import { createOffer } from "./webRTCConnection.js";
 import { showShareLinkScreen } from "./screens.js";
 
 export function createShareLink() {

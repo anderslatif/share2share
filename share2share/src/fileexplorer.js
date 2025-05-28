@@ -1,8 +1,41 @@
 import { renderFileExplorerItems, animateItemEnter, animateItemExit } from './screens.js';
 
-export class FileExplorer {
+export class BaseFileExplorer {
+	constructor(items = []) {
+		this.items = items;
+	}
+
+	toggleFolder(name) {
+		const item = this.findItemByName(name, this.items);
+		if (item && item.type === 'folder') {
+			item.isOpen = !item.isOpen;
+			this.updateView();
+		}
+	}
+
+	findItemByName(name, list) {
+		for (const item of list) {
+			if (item.name === name) return item;
+			if (item.type === 'folder') {
+				const found = this.findItemByName(name, item.items || []);
+				if (found) return found;
+			}
+		}
+		return null;
+	}
+
+	updateView() {
+		const itemsList = document.querySelector('#file-explorer .items-list');
+		if (!itemsList) return;
+
+		const showDownloadIcons = this instanceof DownloadFileExplorer;
+		renderFileExplorerItems(this.items, 0, null, { showDownloadIcons });
+	}
+}
+
+export class UploadFileExplorer extends BaseFileExplorer {
   constructor() {
-    this.items = [];
+    super([]);
     this.hasDropped = false;
 
     this.setupEventListeners();
@@ -156,25 +189,15 @@ export class FileExplorer {
     }
     return false;
   }
+}
 
-  toggleFolder(itemName, parentItems = this.items) {
-    const folder = parentItems.find(item => item.name === itemName && item.type === 'folder');
-    if (folder) {
-      folder.isOpen = !folder.isOpen;
-      this.updateView();
-      return true;
-    }
-    for (const item of parentItems) {
-      if (item.type === 'folder') {
-        if (this.toggleFolder(itemName, item.items)) return true;
-      }
-    }
-    return false;
-  }
+export class DownloadFileExplorer extends BaseFileExplorer {
+	constructor(items) {
+		super(items);
+		this.updateView();
+	}
 
-  updateView() {
-    const itemsList = document.querySelector('#file-explorer .items-list');
-    if (!itemsList) return;
-    renderFileExplorerItems(this.items);
-  }
+	deleteItem() {
+		// No-op in download mode
+	}
 }

@@ -1,4 +1,4 @@
-import { getDataChannel } from "./webrtc.js";
+import { getDataChannel } from "./webRTCConnection.js";
 import { showDownloadWithFileListScreen } from "./screens.js";
 
 // #######################################################
@@ -8,14 +8,23 @@ import { showDownloadWithFileListScreen } from "./screens.js";
 export function offerCandidateSendsFileList(fileItems) {
     const dataChannel = getDataChannel();
 
-    const fileList = fileItems.map(file => ({
-        name: file.name,
-        size: file.size,
-        type: file.type
-    }));
+    function sanitizeForTransfer(item) {
+        const base = {
+            name: item.name,
+            type: item.type,
+            size: item.size,
+            lastModified: item.lastModified
+        };
+        if (item.type === "folder") {
+            base.items = (item.items || []).map(sanitizeForTransfer);
+        }
+        return base;
+    }
+
+    const sanitizedList = fileItems.map(sanitizeForTransfer);
     const data = JSON.stringify({
         eventName: 'offerFileList',
-        payload: fileList
+        payload: sanitizedList
     });
 
     dataChannel.send(data);

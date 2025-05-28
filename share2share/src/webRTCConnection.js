@@ -1,6 +1,6 @@
 import { offerCandidateSendsFileList, 
     answerCandidateRequestsAllFiles, answerCandidateRequestsAFile,
-    offerCandidateReceivedMessage, answerCandidateReceivedMessage } from "./fileTransfer.js";
+    offerCandidateReceivedMessage, answerCandidateReceivedMessage } from "./webRTCHandlers.js";
 import { showDownladReadyScreen } from "./screens.js";
 
 import firebase from "firebase/compat/app";
@@ -50,6 +50,7 @@ export async function createOffer(fileItems) {
     dataChannel = peerConnection.createDataChannel("files");
     dataChannel.onopen = () => {
         dataChannel.send(JSON.stringify({ eventName: "Connection established" }));
+        console.log(fileItems);
         offerCandidateSendsFileList(fileItems);
     };
     dataChannel.onmessage = (event) => {

@@ -1,9 +1,12 @@
-import { answerCandidateRequestsAllFiles } from "./fileTransfer.js";
+import { answerCandidateRequestsAllFiles } from "./webRTCHandlers.js";
 import { createShareLink } from "./util.js";
+import { DownloadFileExplorer } from "./fileExplorer.js";
 
 // #######################################################
 // Drag and Drop + File Explorer Screens
 // #######################################################
+
+let explorerClickHandler = null;
 
 export function showDragAndDropWithFileExplorerScreen() {
     document.getElementById("screen-wrapper").innerHTML = `
@@ -22,8 +25,9 @@ export function showDragAndDropWithFileExplorerScreen() {
 
 
 
-export function renderFileExplorerItems(items, level = 0, parent = null) {
-	if (!Array.isArray(items)) return;
+export function renderFileExplorerItems(items, level = 0, parent = null, options = {}) {
+	const { showDownloadIcons = false } = options;
+	if (!Array.isArray(items)) return '';
 
 	const html = items.map((item) => {
 		const isFolder = item.type === 'folder';
@@ -33,15 +37,19 @@ export function renderFileExplorerItems(items, level = 0, parent = null) {
 			<div class="item ${isFolder ? 'is-folder' : 'is-file'}"
 				 style="margin-left: ${indent}px"
 				 data-name="${item.name}">
-				<span class="icon" onclick="fileExplorer.toggleFolder('${item.name}')" style="cursor: pointer;">
-					${isFolder ? (isOpen ? '📂' : '📁') : '📄'}
+				<span class="icon" style="cursor: pointer;">
+					${isFolder
+    ? (isOpen ? '📂' : '📁')
+    :  '📄'}
 				</span>
 				<span class="name">${item.name}</span>
-				<button class="delete-btn" onclick="fileExplorer.deleteItem('${item.name}')">🗑️</button>
+				<button class="${showDownloadIcons ? 'download-btn' : 'delete-btn'}">
+					${showDownloadIcons ? '⬇️' : '🗑️'}
+				</button>
 			</div>
 			${isFolder && isOpen ? `
 				<div class="folder-content">
-					${renderFileExplorerItems(item.items || [], level + 1, item)}
+					${renderFileExplorerItems(item.items || [], level + 1, item, options)}
 				</div>
 			` : ''}
 		`;
@@ -49,7 +57,36 @@ export function renderFileExplorerItems(items, level = 0, parent = null) {
 
 	if (level === 0) {
 		const container = document.querySelector('#file-explorer .items-list');
-		if (container) container.innerHTML = html;
+		if (container) {
+			container.innerHTML = html;
+
+			// Remove previous handler
+			if (explorerClickHandler) {
+				container.removeEventListener('click', explorerClickHandler);
+			}
+
+			// Add new handler
+			explorerClickHandler = (e) => {
+				const itemEl = e.target.closest('.item');
+				if (!itemEl) return;
+				const name = itemEl.dataset.name;
+
+				if (e.target.closest('.icon')) {
+					if (window.fileExplorer?.toggleFolder) {
+						window.fileExplorer.toggleFolder(name);
+					}
+				} else if (e.target.classList.contains('delete-btn')) {
+					if (window.fileExplorer?.deleteItem) {
+						window.fileExplorer.deleteItem(name);
+					}
+				} else if (e.target.classList.contains('download-btn')) {
+					if (window.fileExplorer?.downloadItem) {
+						window.fileExplorer.downloadItem(name);
+					}
+				}
+			};
+			container.addEventListener('click', explorerClickHandler);
+		}
 	}
 
 	return html;
@@ -129,28 +166,17 @@ export function showDownladReadyScreen() {
 }
 
 export function showDownloadWithFileListScreen(files) {
-  const fileListHtml = files.map(file => `
-    <div class="file-item">
-      <span class="file-name">${file.name}</span>
-      <span class="file-size">${(file.size / 1024).toFixed(2)} KB</span>
-    </div>
-  `).join('');
-
   document.getElementById("screen-wrapper").innerHTML = `
     <div id="download-file-list">
       <h1>Files to Download</h1>
-      <div class="file-list">${fileListHtml}</div>
-      <button id="start-download-button">Start Download</button>
+      <div id="file-explorer">
+      	<button id="start-download-button">Start Download</button>
+        <div class="items-list"></div>
+      </div>
+      <button id="download-all-button">Start Download</button>
     </div>
   `;
-
+  window.fileExplorer = new DownloadFileExplorer(files);
   
-  document.getElementById('start-download-button').addEventListener('click', answerCandidateRequestsAllFiles);
+  document.getElementById('download-all-button').addEventListener('click', answerCandidateRequestsAllFiles);
 }
-
-
-// #######################################################
-// WebRTC Screens
-// #######################################################
-
-// the offer peer left the session
