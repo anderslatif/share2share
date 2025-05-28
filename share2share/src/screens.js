@@ -10,7 +10,7 @@ export function showDragAndDropWithFileExplorerScreen() {
     		<h3>drop files or folders to share</h3>
     		<span class="icon">+</span>
     	</div>
-    	<div class="file-explorer">
+    	<div id="file-explorer">
     		<div class="items-list"></div>
     		<button id="start-sharing-button">Start Sharing</button>
     	</div>
@@ -19,17 +19,19 @@ export function showDragAndDropWithFileExplorerScreen() {
 
 
 export function renderFileExplorerItems(items, level = 0, parent = null) {
-	const itemsList = document.querySelector('.items-list');
-	if (!itemsList) return;
-	itemsList.innerHTML = items.map(item => {
+	if (!Array.isArray(items)) return;
+
+	const html = items.map((item) => {
 		const isFolder = item.type === 'folder';
 		const isOpen = item.isOpen;
 		const indent = level * 20;
 		return `
-			<div class="item ${isFolder ? 'is-folder' : 'is-file'}" 
+			<div class="item ${isFolder ? 'is-folder' : 'is-file'}"
 				 style="margin-left: ${indent}px"
 				 data-name="${item.name}">
-				<span class="icon" onclick="fileExplorer.toggleFolder('${item.name}')" style="cursor: pointer;">${isFolder ? (isOpen ? '📂' : '📁') : '📄'}</span>
+				<span class="icon" onclick="fileExplorer.toggleFolder('${item.name}')" style="cursor: pointer;">
+					${isFolder ? (isOpen ? '📂' : '📁') : '📄'}
+				</span>
 				<span class="name">${item.name}</span>
 				<button class="delete-btn" onclick="fileExplorer.deleteItem('${item.name}')">🗑️</button>
 			</div>
@@ -40,6 +42,13 @@ export function renderFileExplorerItems(items, level = 0, parent = null) {
 			` : ''}
 		`;
 	}).join('');
+
+	if (level === 0) {
+		const container = document.querySelector('#file-explorer .items-list');
+		if (container) container.innerHTML = html;
+	}
+
+	return html;
 }
 
 export function animateItemEnter(name) {
@@ -48,6 +57,15 @@ export function animateItemEnter(name) {
 		item.classList.add('item-enter');
 		setTimeout(() => item.classList.remove('item-enter'), 300);
 	}
+}
+
+export function animateItemExit(name, callback) {
+	const item = document.querySelector(`[data-name="${name}"]`);
+	if (!item) return callback();
+	item.classList.add('item-exit');
+	setTimeout(() => {
+		callback();
+	}, 300);
 }
 
 // #######################################################

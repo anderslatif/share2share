@@ -1,9 +1,10 @@
-import { renderFileExplorerItems, animateItemEnter } from './screens.js';
+import { renderFileExplorerItems, animateItemEnter, animateItemExit } from './screens.js';
 
 export class FileExplorer {
   constructor() {
     this.items = [];
     this.hasDropped = false;
+
     this.setupEventListeners();
     this.updateView();
   }
@@ -13,34 +14,34 @@ export class FileExplorer {
     let dragCounter = 0;
 
     // Show drop zone when dragging files anywhere
-    document.addEventListener('dragenter', (e) => {
-      if (e.dataTransfer && (e.dataTransfer.types.includes('Files') || e.dataTransfer.types.includes('application/x-moz-file'))) {
+    document.addEventListener('dragenter', (event) => {
+      if (event.dataTransfer && (event.dataTransfer.types.includes('Files') || event.dataTransfer.types.includes('application/x-moz-file'))) {
         dragCounter++;
         globalDropZone.classList.add('active');
       }
     });
-    document.addEventListener('dragover', (e) => {
-      if (e.dataTransfer && (e.dataTransfer.types.includes('Files') || e.dataTransfer.types.includes('application/x-moz-file'))) {
-        e.preventDefault();
+    document.addEventListener('dragover', (event) => {
+      if (event.dataTransfer && (event.dataTransfer.types.includes('Files') || event.dataTransfer.types.includes('application/x-moz-file'))) {
+        event.preventDefault();
         globalDropZone.classList.add('active');
       }
     });
-    document.addEventListener('dragleave', (e) => {
+    document.addEventListener('dragleave', (event) => {
       dragCounter--;
       if (dragCounter <= 0) {
         globalDropZone.classList.remove('active');
         dragCounter = 0;
       }
     });
-    document.addEventListener('drop', async (e) => {
+    document.addEventListener('drop', async (event) => {
       globalDropZone.classList.remove('active');
       dragCounter = 0;
-      if (e.dataTransfer && (e.dataTransfer.files.length > 0)) {
-        e.preventDefault();
-        const files = Array.from(e.dataTransfer.items || e.dataTransfer.files);
+      if (event.dataTransfer && (event.dataTransfer.files.length > 0)) {
+        event.preventDefault();
+        const files = Array.from(event.dataTransfer.items || event.dataTransfer.files);
         if (files.length > 0 && files[0].webkitGetAsEntry) {
           // Chrome/Edge: use webkitGetAsEntry for folders
-          for (const item of e.dataTransfer.items) {
+          for (const item of event.dataTransfer.items) {
             const entry = item.webkitGetAsEntry();
             if (entry) {
               await this.traverseFileTree(entry, '');
@@ -48,7 +49,7 @@ export class FileExplorer {
           }
         } else {
           // Fallback: flat files, try to build tree from webkitRelativePath
-          this.addDroppedFiles(Array.from(e.dataTransfer.files));
+          this.addDroppedFiles(Array.from(event.dataTransfer.files));
         }
         this.hasDropped = true;
         globalDropZone.classList.remove('initial');
@@ -138,14 +139,10 @@ export class FileExplorer {
   deleteItem(itemName, parentItems = this.items) {
     const index = parentItems.findIndex(item => item.name === itemName);
     if (index !== -1) {
-      const item = document.querySelector(`[data-name="${itemName}"]`);
-      if (item) {
-        item.classList.add('item-exit');
-        setTimeout(() => {
-          parentItems.splice(index, 1);
-          this.updateView();
-        }, 300);
-      }
+      animateItemExit(itemName, () => {
+        parentItems.splice(index, 1);
+        this.updateView();
+      });
     } else {
       // Recursively search in folders
       for (const item of parentItems) {
@@ -171,6 +168,8 @@ export class FileExplorer {
   }
 
   updateView() {
+    const itemsList = document.querySelector('#file-explorer .items-list');
+    if (!itemsList) return;
     renderFileExplorerItems(this.items);
   }
 }

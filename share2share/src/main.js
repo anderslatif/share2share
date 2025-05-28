@@ -5,27 +5,28 @@ import { createOffer, createAnswer } from './webrtc.js';
 import { showDragAndDropWithFileExplorerScreen, showShareLinkScreen, showDownloadScreen } from './screens.js';
 
 
-showDragAndDropWithFileExplorerScreen();
 
 
-globalThis.fileExplorer = new FileExplorer();
 
-document.getElementById('start-sharing-button').addEventListener('click', () => {
-  console.log(fileExplorer.items);
+// document.getElementById('start-sharing-button').addEventListener('click', () => {
+//   console.log(fileExplorer.items);
 
-  // todo using a hardcoded id while developing
-  // const shareId = Math.random().toString(36).substring(2, 15);
-  const shareId = "shareId";
+//   // todo using a hardcoded id while developing
+//   // const shareId = Math.random().toString(36).substring(2, 15);
+//   const shareId = "shareId";
 
-  const shareUrl = `${window.location.origin}/share/${shareId}`;
-  history.pushState(null, '', shareUrl);
+//   const shareUrl = `${window.location.origin}/share/${shareId}`;
+//   history.pushState(null, '', shareUrl);
 
-  showShareLinkScreen(shareId);
+//   showShareLinkScreen(shareId);
 
-  createOffer(fileExplorer.items);
-});
+//   createOffer(fileExplorer.items);
+// });
 
 document.addEventListener('DOMContentLoaded', () => {
+  showDragAndDropWithFileExplorerScreen();
+  globalThis.fileExplorer = new FileExplorer();
+
   // todo for testing I will create the peer connection immediately for this path 
   if (window.location.pathname.startsWith('/share0')) {
     console.log("Ready to share");
