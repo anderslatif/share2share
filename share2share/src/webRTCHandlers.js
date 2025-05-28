@@ -1,5 +1,8 @@
 import { getDataChannel } from "./webRTCConnection.js";
 import { showDownloadWithFileListScreen } from "./screens.js";
+import { downloadFileLocally } from "./util.js";
+import { zipFolder } from "./zip.js";
+import { file } from "jszip";
 
 // #######################################################
 // Messaging
@@ -30,13 +33,21 @@ export function offerCandidateSendsFileList(fileItems) {
     dataChannel.send(data);
 }
 
+export async function offerCandidateSendsFolder(folderItem) {
+    const dataChannel = getDataChannel();
+
+    const zippedItem = await zipFolder(blob);
+    
+
+}
+
 export function offerCandidateSendsFile(fileItem) {
 	const dataChannel = getDataChannel();
     
 	const chunkSize = 16 * 1024;
 	const { blob, name, size, type } = fileItem;
 
-	// Step 1: Send file metadata
+    	// Step 1: Send file metadata
 	dataChannel.send(JSON.stringify({
 		eventName: "fileMeta",
 		payload: { name, size, type }
@@ -129,16 +140,7 @@ export function answerCandidateReceivedMessage(event) {
         const chunk = Uint8Array.from(data.payload.data);
         receivedChunks.push(chunk);
     } else if (data.eventName === 'fileEnd') {
-        const blob = new Blob(receivedChunks, { type: incomingFile.type });
-        const url = URL.createObjectURL(blob);
-        const anchorTag = document.createElement('a');
-        anchorTag.href = url;
-        anchorTag.download = incomingFile.name;
-        anchorTag.style.display = 'none';
-        document.body.appendChild(anchorTag);
-        anchorTag.click();
-        document.body.removeChild(anchorTag);
-        URL.revokeObjectURL(url);
+        downloadFileLocally(incomingFile, receivedChunks);
 
         console.log("Downloaded file:", incomingFile.name);
 

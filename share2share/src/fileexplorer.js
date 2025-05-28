@@ -1,4 +1,5 @@
 import { renderFileExplorerItems, animateItemEnter, animateItemExit } from './screens.js';
+import { answerCandidateRequestsAFile } from './webRTCHandlers.js';
 
 export class BaseFileExplorer {
 	constructor(items = []) {
@@ -195,6 +196,25 @@ export class DownloadFileExplorer extends BaseFileExplorer {
 	constructor(items) {
 		super(items);
 		this.updateView();
+		this.setupDownloadClickHandler();
+	}
+
+	setupDownloadClickHandler() {
+		const container = document.querySelector('#file-explorer .items-list');
+		if (!container) return;
+
+		container.addEventListener('click', (event) => {
+			const target = event.target;
+			if (!target.classList.contains('download-btn')) return;
+
+			const itemEl = target.closest('.item');
+			if (!itemEl) return;
+
+			const path = itemEl.dataset.path;
+			if (path) {
+				answerCandidateRequestsAFile(path);
+			}
+		});
 	}
 
 	deleteItem() {

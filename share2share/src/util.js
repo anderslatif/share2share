@@ -46,3 +46,16 @@ export function createShareLink() {
 
     createOffer(fileExplorer.items);
 }
+
+export function downloadFileLocally(incomingFile, receivedChunks) {
+	const blob = new Blob(receivedChunks, { type: incomingFile.type });
+	const url = URL.createObjectURL(blob);
+	const anchorTag = document.createElement('a');
+	anchorTag.href = url;
+	anchorTag.download = incomingFile.name;
+	anchorTag.style.display = 'none';
+	document.body.appendChild(anchorTag);
+	anchorTag.click();
+	document.body.removeChild(anchorTag);
+	URL.revokeObjectURL(url);
+}

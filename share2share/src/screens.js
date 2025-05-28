@@ -25,18 +25,20 @@ export function showDragAndDropWithFileExplorerScreen() {
 
 
 
-export function renderFileExplorerItems(items, level = 0, parent = null, options = {}) {
+export function renderFileExplorerItems(items, level = 0, parentPath = '', options = {}) {
 	const { showDownloadIcons = false } = options;
 	if (!Array.isArray(items)) return '';
 
 	const html = items.map((item) => {
+		const currentPath = parentPath ? `${parentPath}/${item.name}` : item.name;
 		const isFolder = item.type === 'folder';
 		const isOpen = item.isOpen;
 		const indent = level * 20;
 		return `
 			<div class="item ${isFolder ? 'is-folder' : 'is-file'}"
 				 style="margin-left: ${indent}px"
-				 data-name="${item.name}">
+				 data-name="${item.name}"
+				 data-path="${currentPath}">
 				<span class="icon" style="cursor: pointer;">
 					${isFolder
     ? (isOpen ? '📂' : '📁')
@@ -44,12 +46,12 @@ export function renderFileExplorerItems(items, level = 0, parent = null, options
 				</span>
 				<span class="name">${item.name}</span>
 				<button class="${showDownloadIcons ? 'download-btn' : 'delete-btn'}">
-					${showDownloadIcons ? '⬇️' : '🗑️'}
+					${showDownloadIcons ? '📥' : '🗑️'}
 				</button>
 			</div>
 			${isFolder && isOpen ? `
 				<div class="folder-content">
-					${renderFileExplorerItems(item.items || [], level + 1, item, options)}
+					${renderFileExplorerItems(item.items || [], level + 1, currentPath, options)}
 				</div>
 			` : ''}
 		`;
@@ -170,7 +172,7 @@ export function showDownloadWithFileListScreen(files) {
     <div id="download-file-list">
       <h1>Files to Download</h1>
       <div id="file-explorer">
-      	<button id="start-download-button">Start Download</button>
+      	<button id="download-all-button">Download All</button>
         <div class="items-list"></div>
       </div>
       <button id="download-all-button">Start Download</button>
