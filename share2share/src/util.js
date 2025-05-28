@@ -47,12 +47,11 @@ export function createShareLink() {
     createOffer(fileExplorer.items);
 }
 
-export function downloadFileLocally(incomingFile, receivedChunks) {
-	const blob = new Blob(receivedChunks, { type: incomingFile.type });
+export function downloadFileLocally(blob, name) {
 	const url = URL.createObjectURL(blob);
 	const anchorTag = document.createElement('a');
 	anchorTag.href = url;
-	anchorTag.download = incomingFile.name;
+	anchorTag.download = name;
 	anchorTag.style.display = 'none';
 	document.body.appendChild(anchorTag);
 	anchorTag.click();

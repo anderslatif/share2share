@@ -1,7 +1,7 @@
 import { getDataChannel } from "./webRTCConnection.js";
 import { showDownloadWithFileListScreen } from "./screens.js";
 import { downloadFileLocally } from "./util.js";
-import { zipFolder } from "./zip.js";
+import { zipFolder } from "./zipUtil.js";
 import { file } from "jszip";
 
 // #######################################################
@@ -33,21 +33,20 @@ export function offerCandidateSendsFileList(fileItems) {
     dataChannel.send(data);
 }
 
-export async function offerCandidateSendsFolder(folderItem) {
-    const dataChannel = getDataChannel();
-
-    const zippedItem = await zipFolder(blob);
-    
-
-}
-
-export function offerCandidateSendsFile(fileItem) {
+export async function offerCandidateSendsFile(fileItem) {
 	const dataChannel = getDataChannel();
-    
 	const chunkSize = 16 * 1024;
+
+	if (fileItem.type === "folder") {
+		const zippedBlob = await zipFolder(fileItem);
+		console.log('Zipped folder blob:', zippedBlob);
+		downloadFileLocally(zippedBlob, fileItem.name + ".zip");
+		return;
+	}
+
 	const { blob, name, size, type } = fileItem;
 
-    	// Step 1: Send file metadata
+	// Step 1: Send file metadata
 	dataChannel.send(JSON.stringify({
 		eventName: "fileMeta",
 		payload: { name, size, type }
@@ -62,16 +61,16 @@ export function offerCandidateSendsFile(fileItem) {
 		while (offset < buffer.length) {
 			const chunk = buffer.slice(offset, offset + chunkSize);
 			dataChannel.send(JSON.stringify({
-                eventName: "fileChunk",
-                payload: { data: Array.from(chunk) }
-            }));
+				eventName: "fileChunk",
+				payload: { data: Array.from(chunk) }
+			}));
 			offset += chunkSize;
 		}
 
-        dataChannel.send(JSON.stringify({
-            eventName: "fileEnd",
-            payload: { name }
-        }));
+		dataChannel.send(JSON.stringify({
+			eventName: "fileEnd",
+			payload: { name }
+		}));
 	};
 
 	reader.readAsArrayBuffer(blob);
@@ -140,7 +139,8 @@ export function answerCandidateReceivedMessage(event) {
         const chunk = Uint8Array.from(data.payload.data);
         receivedChunks.push(chunk);
     } else if (data.eventName === 'fileEnd') {
-        downloadFileLocally(incomingFile, receivedChunks);
+        const blob = new Blob(receivedChunks, { type: incomingFile.type });
+        downloadFileLocally(blob, incomingFile.name);
 
         console.log("Downloaded file:", incomingFile.name);
 

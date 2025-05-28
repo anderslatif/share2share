@@ -1,5 +1,6 @@
 import { renderFileExplorerItems, animateItemEnter, animateItemExit } from './screens.js';
-import { answerCandidateRequestsAFile } from './webRTCHandlers.js';
+import { downloadFileLocally } from './util.js';
+import { zipFolder } from './zipUtil.js';
 
 export class BaseFileExplorer {
 	constructor(items = []) {
@@ -25,12 +26,12 @@ export class BaseFileExplorer {
 		return null;
 	}
 
-	updateView() {
+	updateView(isDownloadMode = false) {
 		const itemsList = document.querySelector('#file-explorer .items-list');
 		if (!itemsList) return;
 
 		const showDownloadIcons = this instanceof DownloadFileExplorer;
-		renderFileExplorerItems(this.items, 0, null, { showDownloadIcons });
+		renderFileExplorerItems(this.items, 0, null, isDownloadMode);
 	}
 }
 
@@ -195,26 +196,8 @@ export class UploadFileExplorer extends BaseFileExplorer {
 export class DownloadFileExplorer extends BaseFileExplorer {
 	constructor(items) {
 		super(items);
-		this.updateView();
-		this.setupDownloadClickHandler();
-	}
-
-	setupDownloadClickHandler() {
-		const container = document.querySelector('#file-explorer .items-list');
-		if (!container) return;
-
-		container.addEventListener('click', (event) => {
-			const target = event.target;
-			if (!target.classList.contains('download-btn')) return;
-
-			const itemEl = target.closest('.item');
-			if (!itemEl) return;
-
-			const path = itemEl.dataset.path;
-			if (path) {
-				answerCandidateRequestsAFile(path);
-			}
-		});
+    const isDownloadMode = true;
+		this.updateView(isDownloadMode);
 	}
 
 	deleteItem() {

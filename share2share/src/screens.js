@@ -1,4 +1,4 @@
-import { answerCandidateRequestsAllFiles } from "./webRTCHandlers.js";
+import { answerCandidateRequestsAllFiles, answerCandidateRequestsAFile } from "./webRTCHandlers.js";
 import { createShareLink } from "./util.js";
 import { DownloadFileExplorer } from "./fileExplorer.js";
 
@@ -25,8 +25,7 @@ export function showDragAndDropWithFileExplorerScreen() {
 
 
 
-export function renderFileExplorerItems(items, level = 0, parentPath = '', options = {}) {
-	const { showDownloadIcons = false } = options;
+export function renderFileExplorerItems(items, level = 0, parentPath = '', isDownloadMode) {
 	if (!Array.isArray(items)) return '';
 
 	const html = items.map((item) => {
@@ -45,13 +44,13 @@ export function renderFileExplorerItems(items, level = 0, parentPath = '', optio
     :  '📄'}
 				</span>
 				<span class="name">${item.name}</span>
-				<button class="${showDownloadIcons ? 'download-btn' : 'delete-btn'}">
-					${showDownloadIcons ? '📥' : '🗑️'}
+				<button class="${isDownloadMode ? 'download-btn' : 'delete-btn'}" data-path="${currentPath}">
+					${isDownloadMode ? '📥' : '🗑️'}
 				</button>
 			</div>
 			${isFolder && isOpen ? `
 				<div class="folder-content">
-					${renderFileExplorerItems(item.items || [], level + 1, currentPath, options)}
+					${renderFileExplorerItems(item.items || [], level + 1, currentPath, isDownloadMode)}
 				</div>
 			` : ''}
 		`;
@@ -61,6 +60,19 @@ export function renderFileExplorerItems(items, level = 0, parentPath = '', optio
 		const container = document.querySelector('#file-explorer .items-list');
 		if (container) {
 			container.innerHTML = html;
+
+			if (isDownloadMode) {
+				const buttons = container.querySelectorAll('.download-btn');
+				buttons.forEach(btn => {
+					btn.addEventListener('click', (e) => {
+						e.stopPropagation();
+						const path = btn.dataset.path;
+						if (path) {
+							answerCandidateRequestsAFile(path);
+						}
+					});
+				});
+			}
 
 			// Remove previous handler
 			if (explorerClickHandler) {
@@ -175,7 +187,6 @@ export function showDownloadWithFileListScreen(files) {
       	<button id="download-all-button">Download All</button>
         <div class="items-list"></div>
       </div>
-      <button id="download-all-button">Start Download</button>
     </div>
   `;
   window.fileExplorer = new DownloadFileExplorer(files);

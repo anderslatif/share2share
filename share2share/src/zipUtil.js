@@ -2,6 +2,7 @@ import JSZip from "jszip";
 
 export async function zipFolder(folder) {
 	const zip = new JSZip();
+	console.log("Zipping folder:", folder.name);
 	const folderZip = zip.folder(folder.name);
 
 	for (const item of folder.items) {
