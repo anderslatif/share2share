@@ -96,7 +96,7 @@
   text-shadow: 0 2px 8px #2563eb22;
 }
 
-.share-title {
+.transfer-title {
   font-size: 2.5rem;
   font-weight: 700;
   color: #22c55e;
@@ -104,7 +104,7 @@
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.share-link-container {
+.transfer-link-container {
   position: relative;
   display: flex;
   align-items: center;
@@ -115,6 +115,7 @@
   padding: 0.75rem 1rem;
   max-width: 80vw;
   box-shadow: 0 4px 16px rgba(34, 197, 94, 0.2);
+  flex: 1;
 }
 
 
@@ -189,7 +190,7 @@
 /* Start Sharing Screen */
 /* ********************************************************** */
 
-#share-link {
+#transfer-link {
   border: none;
   background: transparent;
   color: #065f46;
@@ -233,8 +234,8 @@
 }
 
 
-/* Ready to Share Screen */
-#ready-to-share {
+/* Ready to Transfer Screen */
+#ready-to-transfer {
   display: flex;
   flex-direction: column;
   align-items: center;

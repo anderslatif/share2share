@@ -14,7 +14,7 @@ export function createShareLink() {
     showShareLinkScreen(shareId);
   
     setTimeout(() => {
-    	const input = document.getElementById("share-link");
+    	const input = document.getElementById("transfer-link");
     	const feedback = document.getElementById("copy-feedback");
     	const copyButton = document.getElementById("copy-link-button");
 

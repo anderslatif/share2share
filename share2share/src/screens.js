@@ -111,11 +111,11 @@ export function animateItemExit(name, callback) {
 
 export function showShareLinkScreen(shareId) {
 	document.getElementById("screen-wrapper").innerHTML = `
-		<div id="ready-to-share" class="centered-container">
-			<h1 class="share-title">You're ready to share!</h1>
+		<div id="ready-to-transfer" class="centered-container">
+			<h1 class="transfer-title">You're ready to share!</h1>
 			<h3>Send this link to the person you want to share with.</h3>
-			<div class="share-link-container">
-				<input type="text" id="share-link" readonly value="${window.location.origin}/share/${shareId}" />
+			<div class="transfer-link-container">
+				<input type="text" id="transfer-link" readonly value="${window.location.origin}/share/${shareId}" />
 				<button id="copy-link-button" title="Copy to clipboard">📋</button>
 				<span id="copy-feedback" class="copy-feedback">Copied!</span>
 			</div>
