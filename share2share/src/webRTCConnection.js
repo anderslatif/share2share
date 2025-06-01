@@ -1,7 +1,7 @@
 import { offerCandidateSendsFileList, 
     answerCandidateRequestsAllFiles, answerCandidateRequestsAFile,
     offerCandidateReceivedMessage, answerCandidateReceivedMessage } from "./webRTCHandlers.js";
-import { showDownladReadyScreen } from "./screens.js";
+import { showDownladReadyScreen, sharingConnectionFailedScreen, connectionFailedScreen } from "./screens.js";
 
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
@@ -63,23 +63,23 @@ export async function createOffer(fileItems) {
     await callDocument.set({ offer: { sdp: offerDescription.sdp, type: offerDescription.type } });
 
     callDocument.onSnapshot((snapshot) => {
-    const data = snapshot.data();
-    if (!peerConnection.currentRemoteDescription && data?.answer) {
-        const answerDescription = new RTCSessionDescription(data.answer);
-        peerConnection.setRemoteDescription(answerDescription);
-    }
-});
+        const data = snapshot.data();
+        if (!peerConnection.currentRemoteDescription && data?.answer) {
+            const answerDescription = new RTCSessionDescription(data.answer);
+            peerConnection.setRemoteDescription(answerDescription);
+        }
+    });
 
-answerCandidates.onSnapshot((snapshot) => {
-  snapshot.docChanges().forEach((change) => {
-    if (change.type === "added") {
-      const candidate = new RTCIceCandidate(change.doc.data());
-      if (peerConnection.remoteDescription) {
-        peerConnection.addIceCandidate(candidate).catch(console.error);
-      }
-    }
-  });
-});
+    answerCandidates.onSnapshot((snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+            if (change.type === "added") {
+                const candidate = new RTCIceCandidate(change.doc.data());
+                if (peerConnection.remoteDescription) {
+                    peerConnection.addIceCandidate(candidate).catch(console.error);
+                }
+            }
+        });
+    });
 }
 
 
@@ -108,12 +108,11 @@ export async function createAnswer() {
 	};
 
 	peerConnection.ondatachannel = (event) => {
-    showDownladReadyScreen();
-
-	  dataChannel = event.channel;
-	  dataChannel.onmessage = (event) => {
-	    answerCandidateReceivedMessage(event);
-	  };
+		showDownladReadyScreen();
+		dataChannel = event.channel;
+		dataChannel.onmessage = (event) => {
+			answerCandidateReceivedMessage(event);
+		};
 	};
 
 	await peerConnection.setRemoteDescription(new RTCSessionDescription(callSnapshot.data().offer));
@@ -131,12 +130,12 @@ export async function createAnswer() {
 	});
 
 	callDocument.onSnapshot((snapshot) => {
-	  const updated = snapshot.data();
-	  if (updated?.status === "closed") {
-	    alert("The sender has just left the session.");
-	    dataChannel?.close();
-	    peerConnection?.close();
-	  }
+		const updated = snapshot.data();
+		if (updated?.status === "closed") {
+			alert("The sender has just left the session.");
+			dataChannel?.close();
+			peerConnection?.close();
+		}
 	});
 }
 

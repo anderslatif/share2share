@@ -144,6 +144,17 @@ export function showShareLinkScreen(shareId) {
 
 }
 
+export function sharingConnectionFailedScreen() {
+	document.getElementById("screen-wrapper").innerHTML = `
+		<div id="sharing-connection-failed">
+			<h1 class="transfer-title">Connection to Peer Failed</h1>
+			<p>There was an error connecting to the peer.</p>
+			<p>Please try to share the files from scratch and create a new connection.</p>
+			<button id="retry-button"><a href="/">Retry</a></button>
+		</div>
+	`;
+}
+
 // #######################################################
 // Download Screens
 // #######################################################
