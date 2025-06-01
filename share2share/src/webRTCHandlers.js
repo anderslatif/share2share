@@ -1,5 +1,5 @@
 import { getDataChannel } from "./webRTCConnection.js";
-import { showDownloadWithFileListScreen } from "./screens.js";
+import { showDownloadWithFileListScreen, addFilesTransferredItem } from "./screens.js";
 import { downloadFileLocally } from "./util.js";
 import { zipFolder } from "./zipUtil.js";
 import { file } from "jszip";
@@ -109,13 +109,17 @@ export function offerCandidateReceivedMessage(event, fileItems) {
     if (data.eventName === 'answerRequestsAllFiles' && Array.isArray(fileItems)) {
         fileItems.forEach((fileItem) => {
             offerCandidateSendsFile(fileItem);
+            addFilesTransferredItem(fileItem.name);
         });
     } else if (data.eventName === 'answerRequestsAFile') {
         const requestedName = data.payload.name;
         console.log("Received file request for:", requestedName);
+
+
         const fileItem = fileItems.find(item => item.name === requestedName);
         if (fileItem) {
             offerCandidateSendsFile(fileItem);
+            addFilesTransferredItem(fileItem.name);
         } else {
             console.warn("Requested file not found:", requestedName);
         }

@@ -1,5 +1,4 @@
 import { offerCandidateSendsFileList, 
-    answerCandidateRequestsAllFiles, answerCandidateRequestsAFile,
     offerCandidateReceivedMessage, answerCandidateReceivedMessage } from "./webRTCHandlers.js";
 import { showDownladReadyScreen, sharingConnectionFailedScreen, connectionFailedScreen } from "./screens.js";
 

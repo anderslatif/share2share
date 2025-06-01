@@ -120,6 +120,8 @@ export function showShareLinkScreen(shareId) {
 				<span id="copy-feedback" class="copy-feedback">Copied!</span>
 			</div>
 		</div>
+		<h2>Files Transferred:</h2>
+		<div id="files-transferred"></div>
 	`;
 
 	const input = document.getElementById("transfer-link");
@@ -146,6 +148,16 @@ export function showShareLinkScreen(shareId) {
 
 }
 
+export function addFilesTransferredItem(fileName) {
+	const filesTransferred = document.getElementById("files-transferred");
+
+	const filesTransferredItemP = document.createElement("p");
+	filesTransferredItemP.textContent = fileName;
+
+	filesTransferred.appendChild(filesTransferredItemP);
+}
+
+	
 export function sharingConnectionFailedScreen() {
 	document.getElementById("screen-wrapper").innerHTML = `
 		<div id="sharing-connection-failed">

@@ -193,6 +193,11 @@ nav {
   color: #b91c1c;
 }
 
+.item .download-btn:hover {
+  background: #8eb6ff;
+  color: #1c2eb9;
+}
+
 .item.even {
 	background-color: #f9f9f9;
 }

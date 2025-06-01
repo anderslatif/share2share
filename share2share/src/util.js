@@ -1,10 +1,11 @@
 import { createOffer } from "./webRTCConnection.js";
 import { showShareLinkScreen } from "./screens.js";
+import { generate } from 'random-words';
 
 export function createShareLink() {
     // todo using a hardcoded id while developing
-    // const shareId = Math.random().toString(36).substring(2, 15);
-    const shareId = "shareId";
+    // const shareId = "shareId";
+	const shareId = generate({ min: 3, max: 5, join: "_" });
   
     const shareUrl = `${window.location.origin}/share/${shareId}`;
     history.pushState(null, '', shareUrl);
