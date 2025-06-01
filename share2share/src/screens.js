@@ -28,13 +28,13 @@ export function showDragAndDropWithFileExplorerScreen() {
 export function renderFileExplorerItems(items, level = 0, parentPath = '', isDownloadMode) {
 	if (!Array.isArray(items)) return '';
 
-	const html = items.map((item) => {
+	const html = items.map((item, index) => {
 		const currentPath = parentPath ? `${parentPath}/${item.name}` : item.name;
 		const isFolder = item.type === 'folder';
 		const isOpen = item.isOpen;
 		const indent = level * 20;
 		return `
-			<div class="item ${isFolder ? 'is-folder' : 'is-file'}"
+			<div class="item ${isFolder ? 'is-folder' : 'is-file'} ${index % 2 === 0 ? 'even' : 'odd'}"
 				 style="margin-left: ${indent}px"
 				 data-name="${item.name}"
 				 data-path="${currentPath}">
@@ -69,7 +69,7 @@ export function renderFileExplorerItems(items, level = 0, parentPath = '', isDow
 
 				if (e.target.closest('.icon')) {
 					window.fileExplorer?.toggleFolder?.(name);
-					renderFileExplorerItems(window.fileExplorer.items, 0, '', true);
+					renderFileExplorerItems(window.fileExplorer.items, 0, '', isDownloadMode);
 				} else if (e.target.classList.contains('delete-btn')) {
 					window.fileExplorer?.deleteItem?.(name);
 				} else if (e.target.classList.contains('download-btn')) {
@@ -152,9 +152,12 @@ export function sharingConnectionFailedScreen() {
 			<h1 class="transfer-title">Connection to Peer Failed</h1>
 			<p>There was an error connecting to the peer.</p>
 			<p>Please try to share the files from scratch and create a new connection.</p>
-			<button id="retry-button"><a href="/">Retry</a></button>
+			<button id="retry-button">Retry</button>
 		</div>
 	`;
+	document.getElementById("retry-button")?.addEventListener("click", () => {
+		window.location.href = "/";
+	});
 }
 
 // #######################################################
