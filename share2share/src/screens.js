@@ -42,7 +42,9 @@ export function renderFileExplorerItems(items, level = 0, parentPath = '', isDow
 					${isFolder? (isOpen ? '📂' : '📁') :  '📄'}
 				</span>
 				<span class="name">${item.name}</span>
-				<button class="${isDownloadMode ? 'download-btn' : 'delete-btn'}" data-path="${currentPath}">
+				<button class="${isDownloadMode ? 'download-btn' : 'delete-btn'}"
+					data-path="${currentPath}"
+					title="${isDownloadMode ? 'Download this item only' : 'Delete this item'}">
 					${isDownloadMode ? '📥' : '🗑️'}
 				</button>
 			</div>
