@@ -39,7 +39,27 @@ export class UploadFileExplorer extends BaseFileExplorer {
     this.hasDropped = false;
 
     this.setupEventListeners();
+    this.setupClickToBrowse();
     this.updateView();
+  }
+  setupClickToBrowse() {
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.multiple = true;
+    fileInput.style.display = "none";
+
+    fileInput.addEventListener("change", (event) => {
+      const files = Array.from(event.target.files);
+      this.addDroppedFiles(files);
+      this.hasDropped = true;
+      this.updateView();
+    });
+
+    document.body.appendChild(fileInput);
+
+    document.getElementById("global-drop-zone")?.addEventListener("click", () => {
+      if (!this.hasDropped) fileInput.click();
+    });
   }
 
   setupEventListeners() {

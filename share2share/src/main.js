@@ -2,11 +2,7 @@ import './style.css';
 
 import { UploadFileExplorer } from './fileExplorer.js';
 import { createAnswer } from './webRTCConnection.js';
-import { showDragAndDropWithFileExplorerScreen, showShareLinkScreen, showDownloadConnectingScreen } from './screens.js';
-
-
-
-
+import { showDragAndDropWithFileExplorerScreen, showDownloadConnectingScreen } from './screens.js';
 
 
 document.addEventListener('DOMContentLoaded', () => {

@@ -149,7 +149,7 @@ export function showShareLinkScreen(shareId) {
 export function sharingConnectionFailedScreen() {
 	document.getElementById("screen-wrapper").innerHTML = `
 		<div id="sharing-connection-failed">
-			<h1 class="transfer-title">Connection to Peer Failed</h1>
+			<h1 class="connection-failed-header">Connection to Peer Failed</h1>
 			<p>There was an error connecting to the peer.</p>
 			<p>Please try to share the files from scratch and create a new connection.</p>
 			<button id="retry-button">Retry</button>
@@ -169,8 +169,21 @@ export function showDownloadConnectingScreen() {
 	document.getElementById("screen-wrapper").innerHTML = `
 		<div id="ready-to-download">
 			<h1 id="answer-candidate-message">Trying to connect...</h1>
+			<animated-icons
+				src="https://animatedicons.co/get-icon?name=API&style=minimalistic&token=f4327d0c-f900-40d7-9528-0164114431ff"
+				trigger="loop"
+				attributes='{"variationThumbColour":"#FFFFFF","variationName":"Normal","variationNumber":1,"numberOfGroups":1,"backgroundIsGroup":false,"strokeWidth":1,"defaultColours":{"group-1":"#000000","background":"#FFFFFF"}}'
+				height="200"
+				width="200"
+			></animated-icons>
 		</div>
 	`;
+
+	// Add the animated icons script dynamically
+	const script = document.createElement('script');
+	script.src = "https://animatedicons.co/scripts/embed-animated-icons.js";
+	script.async = true;
+	document.body.appendChild(script);
 }
 
 export function showDownladReadyScreen() {
@@ -199,7 +212,7 @@ export function showDownloadWithFileListScreen(files) {
 export function connectionFailedScreen() {
 	document.getElementById("screen-wrapper").innerHTML = `
 		<div id="connection-failed">
-			<h1 id="connection-failed">Connection Failed</h1>
+			<h1 class="connection-failed-header">Connection Failed</h1>
 			<p>There was an error connecting to the peer.</p>
 			<p>Please get the sender to start the process over again and send you a new link.</p>
 		</div>
