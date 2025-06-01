@@ -229,6 +229,11 @@
   box-shadow: 0 4px 24px rgba(34, 197, 94, 0.2);
 }
 
+#sharing-connection-failed, #connection-failed h1 {
+  color: #ef4444;
+  font-weight: bold;
+  text-align: center;
+}
 
 /* ********************************************************** */
 /* Download Screens */

@@ -37,8 +37,6 @@ const servers = {
 export async function createOffer(fileItems) {    
     shareId = window.location.pathname.split('/').pop();
 
-    isOfferCandiate = true;
-
     // Firestore
     const callDocument = firestore.collection('shares').doc(shareId);
     const offerCandidates = callDocument.collection('offerCandidates');
@@ -46,6 +44,12 @@ export async function createOffer(fileItems) {
 
 
     peerConnection = new RTCPeerConnection(servers);
+    peerConnection.addEventListener("iceconnectionstatechange", () => {
+    	if (peerConnection.iceConnectionState === "failed") {
+    		console.error("ICE connection failed.");
+    		sharingConnectionFailedScreen();
+    	}
+    });
 
     dataChannel = peerConnection.createDataChannel("files");
     dataChannel.onopen = () => {
@@ -102,6 +106,12 @@ export async function createAnswer() {
 	}
 
 	peerConnection = new RTCPeerConnection(servers);
+	peerConnection.addEventListener("iceconnectionstatechange", () => {
+		if (peerConnection.iceConnectionState === "failed") {
+			console.error("ICE connection failed.");
+			connectionFailedScreen();
+		}
+	});
 
 	peerConnection.onicecandidate = (event) => {
 		event.candidate && answerCandidates.add(event.candidate.toJSON());
