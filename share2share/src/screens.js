@@ -39,9 +39,7 @@ export function renderFileExplorerItems(items, level = 0, parentPath = '', isDow
 				 data-name="${item.name}"
 				 data-path="${currentPath}">
 				<span class="icon" style="cursor: pointer;">
-					${isFolder
-    ? (isOpen ? '📂' : '📁')
-    :  '📄'}
+					${isFolder? (isOpen ? '📂' : '📁') :  '📄'}
 				</span>
 				<span class="name">${item.name}</span>
 				<button class="${isDownloadMode ? 'download-btn' : 'delete-btn'}" data-path="${currentPath}">
@@ -111,7 +109,7 @@ export function animateItemExit(name, callback) {
 
 export function showShareLinkScreen(shareId) {
 	document.getElementById("screen-wrapper").innerHTML = `
-		<div id="ready-to-transfer" class="centered-container">
+		<div id="ready-to-transfer">
 			<h1 class="transfer-title">You're ready to share!</h1>
 			<h3>Send this link to the person you want to share with.</h3>
 			<div class="transfer-link-container">
@@ -122,21 +120,28 @@ export function showShareLinkScreen(shareId) {
 		</div>
 	`;
 
-	const input = document.getElementById("share-link");
+	const input = document.getElementById("transfer-link");
 	const feedback = document.getElementById("copy-feedback");
 	const copyButton = document.getElementById("copy-link-button");
 
+	navigator.clipboard.writeText(input.value).then(() => {
+		feedback.classList.add("show");
+		setTimeout(() => feedback.classList.remove("show"), 1500);
+	}).catch((error) => {
+		console.error("Auto-copy failed:", error);
+	});
+
 	if (copyButton && input && feedback) {
-		copyButton.addEventListener("click", async () => {
-			try {
-				await navigator.clipboard.writeText(input.value);
+		copyButton.addEventListener("click", () => {
+			navigator.clipboard.writeText(input.value).then(() => {
 				feedback.classList.add("show");
 				setTimeout(() => feedback.classList.remove("show"), 1500);
-			} catch (err) {
-				console.error("Failed to copy: ", err);
-			}
+			}).catch((error) => {
+				console.error("Auto-copy failed:", error);
+			});
 		});
 	}
+
 }
 
 // #######################################################
@@ -164,10 +169,9 @@ export function showDownladReadyScreen() {
 export function showDownloadWithFileListScreen(files) {
   document.getElementById("screen-wrapper").innerHTML = `
     <div id="download-file-list">
-      <h1>Files to Download</h1>
+	<button id="download-all-button">Download All</button>
       <div id="file-explorer">
-      	<button id="download-all-button">Download All</button>
-        <div class="items-list"></div>
+	  <div class="items-list"></div>
       </div>
     </div>
   `;
@@ -175,3 +179,13 @@ export function showDownloadWithFileListScreen(files) {
   
   document.getElementById('download-all-button').addEventListener('click', answerCandidateRequestsAllFiles);
 }
+
+export function connectionFailedScreen() {
+	document.getElementById("screen-wrapper").innerHTML = `
+		<div id="connection-failed">
+			<h1 id="connection-failed">Connection Failed</h1>
+			<p>There was an error connecting to the peer.</p>
+			<p>Please get the sender to start the process over again and send you a new link.</p>
+		</div>
+	`;
+}	

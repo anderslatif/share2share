@@ -3,14 +3,11 @@
 
 Have a look at util.js
 
-Unify the way I show and hide the different screens.
-Convert .file-explorer => #file-explorer
-
-Handle downloading nested files in directories.
-
 Create a markdown table in README for the different event types.
 
 CSS, make sure that it takes up the screen and no scrolling.
+
+Clickin on the landing page should open file explorer.
 
 ################################################################
 # Near Future
@@ -24,12 +21,11 @@ Consider allowing downloading individual files as well as all.
 1. Create a cute animation while connecting to peer for the answer candidate. 
 2. Inform the offer candidate of connection and what files are being downloaded.
 
+https://www.npmjs.com/package/random-words
+
 
 ################################################################
 # Future
 
-
-
 Delete documents in Firestore after a week or month.
-Allow for continuous upload even after sharing.
 Could be sweet if there is a "all good/ done" button as long as heart that can be sent between each other...
