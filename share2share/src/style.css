@@ -167,6 +167,11 @@ nav {
   font-weight: 400;
   padding-left: 0.6rem;
   padding-right: 0.4rem;
+  user-select: none;
+}
+
+.item.downloadable {
+  cursor: pointer;
 }
 
 .item .name {
@@ -373,7 +378,6 @@ nav {
   background: #f0fdf4;
   border: 2px solid #22c55e;
   border-radius: 24px;
-  max-width: 700px;
   margin-left: auto;
   margin-right: auto;
   box-shadow: 0 4px 24px rgba(34, 197, 94, 0.2);

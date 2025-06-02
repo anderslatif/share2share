@@ -8,6 +8,48 @@ import { DownloadFileExplorer } from "./fileExplorer.js";
 
 let explorerClickHandler = null;
 
+function generateExplorerHTML(items, level, parentPath, isDownloadMode) {
+	return items.map((item, index) => {
+		const currentPath = parentPath ? `${parentPath}/${item.name}` : item.name;
+		const isFolder = item.type === 'folder';
+		const isOpen = item.isOpen;
+		const indent = level * 20;
+		return `
+			<div class="item ${isFolder ? 'is-folder' : 'is-file'} ${isDownloadMode ? 'downloadable' : ''} ${index % 2 === 0 ? 'even' : 'odd'}"
+				 style="margin-left: ${indent}px"
+				 data-name="${item.name}"
+				 data-path="${currentPath}">
+				<span class="icon" style="cursor: pointer;">
+					${isFolder ? (isOpen ? '📂' : '📁') :  '📄'}
+				</span>
+				<span class="name">${item.name}</span>
+				<button class="${isDownloadMode ? 'download-btn' : 'delete-btn'}"
+					data-path="${currentPath}"
+					title="${isDownloadMode ? 'Download this item only' : 'Delete this item'}">
+					${isDownloadMode ? '📥' : '🗑️'}
+				</button>
+			</div>
+			${isFolder && isOpen ? `
+				<div class="folder-content">
+					${generateExplorerHTML(item.items || [], level + 1, currentPath, isDownloadMode)}
+				</div>
+			` : ''}
+		`;
+	}).join('');
+}
+
+function addDownloadModeHandlers(container) {
+	const items = container.querySelectorAll('.item');
+	items.forEach((itemElement) => {
+		itemElement.addEventListener('dblclick', () => {
+			const path = itemElement.dataset.path;
+			if (path) {
+				answerCandidateRequestsAFile(path);
+			}
+		});
+	});
+}
+
 export function showDragAndDropWithFileExplorerScreen() {
     document.getElementById("screen-wrapper").innerHTML = `
     	<div id="global-drop-zone" class="drop-zone initial">
@@ -28,39 +70,15 @@ export function showDragAndDropWithFileExplorerScreen() {
 export function renderFileExplorerItems(items, level = 0, parentPath = '', isDownloadMode) {
 	if (!Array.isArray(items)) return '';
 
-	const html = items.map((item, index) => {
-		const currentPath = parentPath ? `${parentPath}/${item.name}` : item.name;
-		const isFolder = item.type === 'folder';
-		const isOpen = item.isOpen;
-		const indent = level * 20;
-		return `
-			<div class="item ${isFolder ? 'is-folder' : 'is-file'} ${index % 2 === 0 ? 'even' : 'odd'}"
-				 style="margin-left: ${indent}px"
-				 data-name="${item.name}"
-				 data-path="${currentPath}">
-				<span class="icon" style="cursor: pointer;">
-					${isFolder? (isOpen ? '📂' : '📁') :  '📄'}
-				</span>
-				<span class="name">${item.name}</span>
-				<button class="${isDownloadMode ? 'download-btn' : 'delete-btn'}"
-					data-path="${currentPath}"
-					title="${isDownloadMode ? 'Download this item only' : 'Delete this item'}">
-					${isDownloadMode ? '📥' : '🗑️'}
-				</button>
-			</div>
-			${isFolder && isOpen ? `
-				<div class="folder-content">
-					${renderFileExplorerItems(item.items || [], level + 1, currentPath, isDownloadMode)}
-				</div>
-			` : ''}
-		`;
-	}).join('');
-
+	const html = generateExplorerHTML(items, level, parentPath, isDownloadMode);
 	const container = document.querySelector('#file-explorer .items-list');
 	if (container) {
 		container.innerHTML = html;
 
-		// Only add the handler once
+		if (isDownloadMode) {
+			addDownloadModeHandlers(container);
+		}
+
 		if (!explorerClickHandler) {
 			explorerClickHandler = (e) => {
 				const itemEl = e.target.closest('.item');

@@ -28,7 +28,6 @@ export class BaseFileExplorer {
 		const itemsList = document.querySelector('#file-explorer .items-list');
 		if (!itemsList) return;
 
-		const showDownloadIcons = this instanceof DownloadFileExplorer;
 		renderFileExplorerItems(this.items, 0, null, isDownloadMode);
 	}
 }
@@ -42,6 +41,7 @@ export class UploadFileExplorer extends BaseFileExplorer {
     this.setupClickToBrowse();
     this.updateView();
   }
+
   setupClickToBrowse() {
     const fileInput = document.createElement("input");
     fileInput.type = "file";
@@ -90,19 +90,18 @@ export class UploadFileExplorer extends BaseFileExplorer {
       dragCounter = 0;
       if (event.dataTransfer && (event.dataTransfer.files.length > 0)) {
         event.preventDefault();
-        const files = Array.from(event.dataTransfer.items || event.dataTransfer.files);
-        if (files.length > 0 && files[0].webkitGetAsEntry) {
-          // Chrome/Edge: use webkitGetAsEntry for folders
-          for (const item of event.dataTransfer.items) {
-            const entry = item.webkitGetAsEntry();
-            if (entry) {
-              await this.traverseFileTree(entry, '');
-            }
+        const entries = Array.from(event.dataTransfer.items)
+          .map(item => item.webkitGetAsEntry?.())
+          .filter(entry => entry != null);
+
+        if (entries.length > 0) {
+          for (const entry of entries) {
+            await this.traverseFileTree(entry, '');
           }
         } else {
-          // Fallback: flat files, try to build tree from webkitRelativePath
           this.addDroppedFiles(Array.from(event.dataTransfer.files));
         }
+
         this.hasDropped = true;
         globalDropZone.classList.remove('initial');
         this.updateView();
