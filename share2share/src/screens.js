@@ -12,7 +12,8 @@ function generateExplorerHTML(items, level, parentPath, isDownloadMode) {
 	return items.map((item, index) => {
 		const currentPath = parentPath ? `${parentPath}/${item.name}` : item.name;
 		const isFolder = item.type === 'folder';
-		const isOpen = item.isOpen;
+		if (item.isOpen === undefined) item.isOpen = true;
+		let isOpen = item.isOpen;
 		const indent = level * 20;
 		return `
 			<div class="item ${isFolder ? 'is-folder' : 'is-file'} ${isDownloadMode ? 'downloadable' : ''} ${index % 2 === 0 ? 'even' : 'odd'}"
@@ -235,9 +236,6 @@ export function showDownloadWithFileListScreen(files) {
 		</div>
 	`;
 	window.fileExplorer = new DownloadFileExplorer(files);
-  	window.fileExplorer.items.forEach(item => {
-		if (item.type === 'folder') item.isOpen = true;
-	});
   
 	document.getElementById('download-all-button').addEventListener('click', answerCandidateRequestsAllFiles);
 }
