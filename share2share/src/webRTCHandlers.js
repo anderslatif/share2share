@@ -40,8 +40,12 @@ export async function offerCandidateSendsFile(fileItem) {
 	if (fileItem.type === "folder") {
 		const zippedBlob = await zipFolder(fileItem);
 		console.log('Zipped folder blob:', zippedBlob);
-		downloadFileLocally(zippedBlob, fileItem.name + ".zip");
-		return;
+		fileItem = {
+			blob: zippedBlob,
+			name: fileItem.name + ".zip",
+			size: zippedBlob.size,
+			type: zippedBlob.type
+		};
 	}
 
 	const { blob, name, size, type } = fileItem;
@@ -52,28 +56,35 @@ export async function offerCandidateSendsFile(fileItem) {
 		payload: { name, size, type }
 	}));
 
-	// Step 2: Read and send file in chunks
-	const reader = new FileReader();
-	reader.onload = () => {
-		let buffer = new Uint8Array(reader.result);
-		let offset = 0;
+	// Step 2: Read and send file in chunks, wrapped in a Promise
+	return new Promise((resolve) => {
+		const reader = new FileReader();
+		reader.onload = () => {
+			let buffer = new Uint8Array(reader.result);
+			let offset = 0;
 
-		while (offset < buffer.length) {
-			const chunk = buffer.slice(offset, offset + chunkSize);
+			while (offset < buffer.length) {
+				const chunk = buffer.slice(offset, offset + chunkSize);
+				dataChannel.send(JSON.stringify({
+					eventName: "fileChunk",
+					payload: {
+						name,
+						data: Array.from(chunk)
+					}
+				}));
+				offset += chunkSize;
+			}
+
 			dataChannel.send(JSON.stringify({
-				eventName: "fileChunk",
-				payload: { data: Array.from(chunk) }
+				eventName: "fileEnd",
+				payload: { name }
 			}));
-			offset += chunkSize;
-		}
 
-		dataChannel.send(JSON.stringify({
-			eventName: "fileEnd",
-			payload: { name }
-		}));
-	};
+			resolve();
+		};
 
-	reader.readAsArrayBuffer(blob);
+		reader.readAsArrayBuffer(blob);
+	});
 }
 
 export function answerCandidateRequestsAllFiles() {
@@ -126,8 +137,7 @@ export function offerCandidateReceivedMessage(event, fileItems) {
     }
 }
 
-let incomingFile = null;
-let receivedChunks = [];
+let activeTransfers = new Map();  // key = file name
 
 export function answerCandidateReceivedMessage(event) {
     const data = JSON.parse(event.data);
@@ -138,28 +148,26 @@ export function answerCandidateReceivedMessage(event) {
         console.log("Received file list:", data.payload);
     } else if (data.eventName === 'fileMeta') {
         console.log("Received file metadata:", data.payload);
-        incomingFile = {
-            name: data.payload.name,
-            size: data.payload.size,
-            type: data.payload.type
-        };
-        receivedChunks = [];
+        const { name, size, type } = data.payload;
+        activeTransfers.set(name, { type, chunks: [] });
     } else if (data.eventName === 'fileChunk') {
-        if (!incomingFile) {
-            console.warn("fileChunk received without fileMeta");
+        const { name, data: chunkData } = data.payload;
+        if (!activeTransfers.has(name)) {
+            console.warn("fileChunk received for unknown file:", name);
             return;
         }
-        const chunk = Uint8Array.from(data.payload.data);
-        receivedChunks.push(chunk);
+        const chunk = Uint8Array.from(chunkData);
+        activeTransfers.get(name).chunks.push(chunk);
     } else if (data.eventName === 'fileEnd') {
-        if (!incomingFile) {
-            console.warn("fileEnd received without fileMeta");
+        const { name } = data.payload;
+        const transfer = activeTransfers.get(name);
+        if (!transfer) {
+            console.warn("fileEnd received for unknown file:", name);
             return;
         }
-        const blob = new Blob(receivedChunks, { type: incomingFile.type });
-        downloadFileLocally(blob, incomingFile.name);
-        console.log("Downloaded file:", incomingFile.name);
-        incomingFile = null;
-        receivedChunks = [];
+        const blob = new Blob(transfer.chunks, { type: transfer.type });
+        downloadFileLocally(blob, name);
+        console.log("Downloaded file:", name);
+        activeTransfers.delete(name);
     }
 }
